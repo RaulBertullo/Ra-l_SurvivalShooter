@@ -1,0 +1,47 @@
+using UnityEngine;
+
+public class EnemySpawner : MonoBehaviour
+{
+    [SerializeField] float spawnRange;
+    [SerializeField] GameObject enemyPrefab;
+    [SerializeField] GameObject player;
+
+    [SerializeField] float minFrecuencia, maxFrecuencia;
+    float timer = 0;
+    void Update()
+    {
+        if (timer <= 0)
+        {
+            timer = Random.Range(minFrecuencia, maxFrecuencia);
+            SpawnEnemigo();
+        }
+        else timer -= Time.deltaTime;
+    }
+
+    void SpawnEnemigo()
+    {
+        if (enemyPrefab == null) return;
+
+        float offset = Random.Range(0, spawnRange);
+
+        
+        
+        Vector3 offsetDirection = new Vector3(Random.Range(0, 1f), Random.Range(0, 1f), Random.Range(0, 1f)).normalized;
+        GameObject lastEnemy = Instantiate(enemyPrefab, transform.position + offsetDirection * offset, Quaternion.identity);
+        lastEnemy.GetComponent<EnemyBehaviour>().target = player;
+    }
+
+    public void RestoreEnemy(Vector3 position, int health)
+    {
+        if (enemyPrefab == null) return;
+        GameObject lastEnemy = Instantiate(enemyPrefab, position, Quaternion.identity);
+
+        lastEnemy.GetComponent<EnemyBehaviour>().target = player;
+        lastEnemy.GetComponent<EnemyBehaviour>().life = health;
+    }
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(transform.position, spawnRange);
+    }
+}
