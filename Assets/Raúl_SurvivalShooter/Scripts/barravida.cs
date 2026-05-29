@@ -1,19 +1,38 @@
 using UnityEngine;
-using UnityEngine.UI;
+using TMPro;
 
 public class barraVida : MonoBehaviour
 {
-    public Image barra;
+    public TextMeshProUGUI textoVida;
     public PlayerController jugador;
+
+    public GameObject gameOverPanel;
+
+    bool gameOver;
+
+    void Start()
+    {
+        gameOverPanel.SetActive(false);
+    }
 
     void Update()
     {
-        if (jugador == null || barra == null) return;
+        if (gameOver || jugador == null) return;
 
-        float porcentaje = (float)jugador.vidaActual / jugador.vidaMax;
+        textoVida.text = jugador.vidaActual + " / " + jugador.vidaMax;
 
-        porcentaje = Mathf.Clamp01(porcentaje);
+        if (jugador.vidaActual <= 0)
+        {
+            GameOver();
+        }
+    }
 
-        barra.fillAmount = porcentaje;
+    void GameOver()
+    {
+        gameOver = true;
+
+        gameOverPanel.SetActive(true);
+
+        Destroy(jugador.gameObject);
     }
 }

@@ -38,6 +38,7 @@ public class PlayerController : MonoBehaviour
         armaActual = listaArmas[0].GetComponent<IWeapon>();
         navAgent = GetComponent<NavMeshAgent>();
         vidaActual = vidaMax;
+
         controles = new PlayerMouseInput();
         controles.Player.Enable();
 
@@ -49,26 +50,17 @@ public class PlayerController : MonoBehaviour
         controles.Player.Second,
         controles.Player.Third
         };
-
-        guardarPartida = controles.Player.SaveQuit;
-        borrarPartida = controles.Player.Reset;
-
-        if (SaveSystem.Load(datosJuego, gameObject))
-        {
-            transform.position = datosJuego.playerPosition;
-
-            for (int i = 0; i < datosJuego.enemyPositions.Length; i++)
-            {
-                FindAnyObjectByType<EnemySpawner>().RestoreEnemy(
-                    datosJuego.enemyPositions[i],
-                    datosJuego.enemyHealths[i]
-                );
-            }
-        }
     }
 
     void Update()
     {
+
+        if (vidaActual <= 0)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
         Debug.Log("VIDA: " + vidaActual);
 
         tiempoDisparo += Time.deltaTime;
@@ -128,51 +120,12 @@ public class PlayerController : MonoBehaviour
                 armaActual = listaArmas[i].GetComponent<IWeapon>();
             }
         }
+ 
 
-        if (guardarPartida.WasPressedThisFrame())
-        {
-            GuardarSalir();
-        }
-
-        if (borrarPartida.WasPressedThisFrame())
-        {
-            ReiniciarJuego();
-        }
 
      
     }
 
-    void GuardarSalir()
-    {
-        datosJuego.playerPosition = transform.position;
-
-        EnemyBehaviour[] enemigos =
-            FindObjectsByType<EnemyBehaviour>(FindObjectsSortMode.None);
-
-        datosJuego.enemyPositions = new Vector3[enemigos.Length];
-        datosJuego.enemyHealths = new int[enemigos.Length];
-
-        for (int i = 0; i < enemigos.Length; i++)
-        {
-            datosJuego.enemyPositions[i] = enemigos[i].transform.position;
-            datosJuego.enemyHealths[i] = enemigos[i].life;
-        }
-
-        SaveSystem.Save(datosJuego);
-
-        Application.Quit();
-    }
-
-    void ReiniciarJuego()
-    {
-        SaveSystem.DeleteSave();
-
-        datosJuego.Reset();
-
-        UnityEngine.SceneManagement.SceneManager.LoadScene(
-            UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex
-        );
-    }
 
     void MoverJugador()
     {
